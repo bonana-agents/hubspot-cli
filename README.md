@@ -18,6 +18,15 @@ curl -fsSL https://api.hubapi.com/hub/cli/backend/hub-cli/latest/install.sh | sh
 
 `hubspot-cli` looks for `hubspot` on your `PATH` at runtime.
 
+The install command above installs the latest code on `main`. To install a released version instead, append a tag or a semver range:
+
+```bash
+npm install -g github:rverheijen/hubspot-cli#v0.1.1        # exact version
+npm install -g github:rverheijen/hubspot-cli#semver:^0.1   # latest 0.1.x release
+```
+
+Releases are listed under [Tags](https://github.com/rverheijen/hubspot-cli/tags). To update, run the install command again.
+
 ## Uninstall
 
 ```bash

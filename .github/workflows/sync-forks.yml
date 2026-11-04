@@ -1,0 +1,63 @@
+name: Sync forks
+
+# Pushes each release (v* tag) to the organization forks: the fork's main is
+# fast-forwarded to the tagged commit and the tag itself is pushed.
+# Each fork has its own fine-grained token (Contents and Workflows: write),
+# stored here as a secret. Deploy keys cannot push changes to workflow files.
+
+on:
+  push:
+    tags: ['v*']
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: Tag to sync (defaults to the latest v* tag on main)
+        required: false
+
+permissions:
+  contents: read
+
+jobs:
+  sync:
+    if: github.repository == 'rverheijen/hubspot-cli'
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - fork: bonana-agents/hubspot-cli
+            token: SYNC_TOKEN_BONANA
+          - fork: x-equipment/hubspot-cli
+            token: SYNC_TOKEN_XEQUIPMENT
+    steps:
+      - uses: actions/checkout@v5
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+
+      - name: Resolve tag
+        id: tag
+        env:
+          INPUT_TAG: ${{ inputs.tag }}
+        run: |
+          if [ "$GITHUB_REF_TYPE" = "tag" ]; then
+            TAG="$GITHUB_REF_NAME"
+          else
+            TAG="${INPUT_TAG:-$(git describe --tags --abbrev=0 --match 'v*' origin/main)}"
+          fi
+          git rev-parse -q --verify "refs/tags/$TAG" >/dev/null || { echo "::error::Tag $TAG not found"; exit 1; }
+          git merge-base --is-ancestor "$TAG^{commit}" origin/main || { echo "::error::$TAG is not on main"; exit 1; }
+          echo "name=$TAG" >> "$GITHUB_OUTPUT"
+
+      - name: Push ${{ steps.tag.outputs.name }} to ${{ matrix.fork }}
+        env:
+          TOKEN: ${{ secrets[matrix.token] }}
+          TAG: ${{ steps.tag.outputs.name }}
+          FORK: ${{ matrix.fork }}
+        run: |
+          if [ -z "$TOKEN" ]; then
+            echo "::error::Secret ${{ matrix.token }} is missing or empty"
+            exit 1
+          fi
+          # No --force: main only fast-forwards, so a fork that drifted fails loudly.
+          git push "https://x-access-token:${TOKEN}@github.com/$FORK.git" "$TAG^{commit}:refs/heads/main" "refs/tags/$TAG:refs/tags/$TAG"

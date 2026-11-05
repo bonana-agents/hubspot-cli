@@ -90,8 +90,10 @@ your-project/
 
 ```bash
 echo "$HOME/.hubspot/bin" >> "$GITHUB_PATH"
-npm install -g github:rverheijen/hubspot-cli
+npm install -g github:rverheijen/hubspot-cli#semver:^0.1
 ```
+
+The examples pin `#semver:^0.1`, so pipelines get fixes from new 0.1.x releases but not a 0.2 release, which may contain breaking changes while the version is below 1.0. Use an exact tag such as `#v0.1.2` to lock a specific version.
 
 ### 2. Enable write permissions for the manifest commit
 
@@ -148,7 +150,7 @@ jobs:
       - name: Install hubspot-cli
         run: |
           echo "$HOME/.hubspot/bin" >> "$GITHUB_PATH"
-          npm install -g github:rverheijen/hubspot-cli
+          npm install -g github:rverheijen/hubspot-cli#semver:^0.1
 
       - name: Diff changed config against remote
         env:
@@ -198,7 +200,7 @@ jobs:
       - name: Install hubspot-cli
         run: |
           echo "$HOME/.hubspot/bin" >> "$GITHUB_PATH"
-          npm install -g github:rverheijen/hubspot-cli
+          npm install -g github:rverheijen/hubspot-cli#semver:^0.1
 
       - name: Push objects
         env:
@@ -273,7 +275,7 @@ jobs:
       - name: Install hubspot-cli
         run: |
           echo "$HOME/.hubspot/bin" >> "$GITHUB_PATH"
-          npm install -g github:rverheijen/hubspot-cli
+          npm install -g github:rverheijen/hubspot-cli#semver:^0.1
 
       - name: Push all config
         env:
@@ -310,7 +312,7 @@ jobs:
       - name: Install hubspot-cli
         run: |
           echo "$HOME/.hubspot/bin" >> "$GITHUB_PATH"
-          npm install -g github:rverheijen/hubspot-cli
+          npm install -g github:rverheijen/hubspot-cli#semver:^0.1
 
       - name: Push all config
         env:
@@ -347,7 +349,7 @@ jobs:
       - name: Install hubspot-cli
         run: |
           echo "$HOME/.hubspot/bin" >> "$GITHUB_PATH"
-          npm install -g github:rverheijen/hubspot-cli
+          npm install -g github:rverheijen/hubspot-cli#semver:^0.1
 
       - name: Push all config
         env:
